@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Clubby.ConfigService;
+using System;
+using Clubby.Events;
+using System.Collections.Generic;
+using Discord.WebSocket;
+using System.Threading.Tasks;
 
 namespace Clubby
 {
@@ -6,7 +11,8 @@ namespace Clubby
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Config config = new Config();
+            BetterEventHandler.SetConfig(config);
         }
     }
 }
