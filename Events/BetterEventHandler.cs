@@ -9,7 +9,7 @@ namespace Clubby.Events
 {
     public static class BetterEventHandler
     {
-        public static Config config = null;
+        public static ConfigFile config = null;
 
         private static Queue<(string, object[])> EventQueue = new Queue<(string, object[])>();
         private static List<Event> SortedEventCache = new List<Event>();
@@ -80,7 +80,7 @@ namespace Clubby.Events
             }
         }
 
-        public static void SetConfig(Config config)
+        public static void SetConfig(ConfigFile config)
         {
             BetterEventHandler.config = config;
         }
