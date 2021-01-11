@@ -179,10 +179,10 @@ namespace Clubby.Discord.CommandHandling
         }
 
         /// <summary>
-        /// Constructs a closure to use to find the command required from the plugin manager.
+        /// Constructs a predicate to use to find the command required from the plugin manager.
         /// </summary>
         /// <param name="cmd">The name of the command</param>
-        private Func<Type, bool> Construct_Identifier(string cmd)
+        private Predicate<Type> Construct_Identifier(string cmd)
         {
             return (t) =>
             {
