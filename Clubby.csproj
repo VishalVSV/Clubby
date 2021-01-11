@@ -6,12 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Discord\CommandHandling\CommandTemplate.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="GoogleServices\" />
     <Folder Include="Images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Discord\CommandHandling\CommandTemplate.cs" />
   </ItemGroup>
 
 </Project>
