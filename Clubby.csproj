@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <Folder Include="GoogleServices\" />
+    <Folder Include="Images\" />
   </ItemGroup>
 
 </Project>

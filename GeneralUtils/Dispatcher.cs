@@ -24,7 +24,8 @@ namespace Clubby.GeneralUtils
                 try { t0 = (T0)converter[typeof(T0)](segs[0].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 1 < error_msgs.Length) throw new Exception(error_msgs[1]);
+                    if (error_msgs != null && 0 < error_msgs.Length) 
+                        throw new Exception(error_msgs[0]);
                     else init = false;
                 }
             }
@@ -44,7 +45,7 @@ namespace Clubby.GeneralUtils
                 try { t0 = (T0)converter[typeof(T0)](segs[0].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 2 < error_msgs.Length) throw new Exception(error_msgs[2]);
+                    if (error_msgs != null && 0 < error_msgs.Length) throw new Exception(error_msgs[0]);
                     else init = false;
                 }
             }
@@ -56,7 +57,7 @@ namespace Clubby.GeneralUtils
                 try { t1 = (T1)converter[typeof(T1)](segs[1].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 2 < error_msgs.Length) throw new Exception(error_msgs[2]);
+                    if (error_msgs != null && 1 < error_msgs.Length) throw new Exception(error_msgs[1]);
                     else init = false;
                 }
             }

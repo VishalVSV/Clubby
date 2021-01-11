@@ -12,26 +12,30 @@ namespace Clubby.Discord.CommandHandling
 {
     public class CommandHandler
     {
-        PluginManager<IDiscordCommand> commands = new PluginManager<IDiscordCommand>();
+        private static Random rand = new Random();
+
+        public PluginManager<IDiscordCommand,DiscordBot> commands = new PluginManager<IDiscordCommand,DiscordBot>();
 
         public Func<ulong, SocketTextChannel> GetChannel;
 
         [JsonIgnore]
         public Dictionary<ulong, IDiscordCommand> ExecutingCommand = new Dictionary<ulong, IDiscordCommand>();
 
-        Action<IDiscordCommand> OnFail = null;
+        [JsonIgnore]
+        private DiscordBot bot;
 
-        public CommandHandler()
+        public CommandHandler(DiscordBot bot)
         {
+            this.bot = bot;
             if (Directory.Exists("./Commands"))
             {
-                commands.Load("./Commands");
+                commands.Load("./Commands", bot);
             }
         }
 
         public void Reload()
         {
-            commands.Load("./Commands");
+            commands.Load("./Commands",bot);
         }
 
         public Type[] GetAllCommands(int max_perms)
@@ -89,9 +93,18 @@ namespace Clubby.Discord.CommandHandling
                     int user_perms = Program.config.DiscordPermissions.GetResolvedPerms(msg.Author, msg.IsFromOwner());
                     if (user_perms >= perms)
                     {
-                        if (!await cmd.Handle(msg, (msg.Channel as SocketGuildChannel).Guild, this))
+                        if (rand.NextDouble() > 0.999)
                         {
-                            OnFail?.Invoke(cmd);
+                            await msg.Channel.SendMessageAsync("no");
+                            return;
+                        }
+                        try
+                        {
+                            await cmd.Handle(msg, (msg.Channel as SocketGuildChannel).Guild, this);                            
+                        }
+                        catch(Exception e)
+                        {
+                            await msg.Channel.SendError(e.Message);
                         }
                     }
                     else

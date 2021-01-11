@@ -11,7 +11,8 @@ namespace Clubby.Discord.CommandHandling
     {
         public static bool IsFromOwner(this SocketMessage msg)
         {
-            return (msg.Channel as SocketGuildChannel).Guild.Owner.Id == msg.Author.Id;
+            var a = (msg.Channel as SocketGuildChannel);
+            return a.Guild.OwnerId == msg.Author.Id;
         }
 
         public static async Task SendError(this ISocketMessageChannel channel,string error_msg)

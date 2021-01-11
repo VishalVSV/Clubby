@@ -16,9 +16,19 @@ namespace Clubby.Scheduling
         public EmbedBuilder embed;
     }
 
+    public class PeriodicEvent
+    {
+        public DateTime last_exec;
+        public TimeSpan interval;
+        public Action action;
+    }
+
     public class Scheduler
     {
         public Dictionary<string, SortedList<DateTime, (int, SchedulerEvent)>> Scheduler_raw = new Dictionary<string, SortedList<DateTime, (int, SchedulerEvent)>>();
+
+        [JsonIgnore]
+        public List<PeriodicEvent> PeriodicActivities = new List<PeriodicEvent>();
 
         public void CreateCategory(string category)
         {
@@ -81,6 +91,16 @@ namespace Clubby.Scheduling
                         events.RemoveAt(0);
                     }
                     else break;
+                }
+            }
+
+
+            for (int i = 0; i < PeriodicActivities.Count; i++)
+            {
+                if((now - PeriodicActivities[i].last_exec) > PeriodicActivities[i].interval)
+                {
+                    PeriodicActivities[i].action?.Invoke();
+                    PeriodicActivities[i].last_exec = now;
                 }
             }
         }
