@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Clubby.GeneralUtils
 {
+    /// <summary>
+    /// Auto generated dispatcher code.
+    /// </summary>
     public static class Dispatcher
     {
 
@@ -77,7 +80,7 @@ namespace Clubby.GeneralUtils
                 try { t0 = (T0)converter[typeof(T0)](segs[0].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 3 < error_msgs.Length) throw new Exception(error_msgs[3]);
+                    if (error_msgs != null && 0 < error_msgs.Length) throw new Exception(error_msgs[0]);
                     else init = false;
                 }
             }
@@ -89,7 +92,7 @@ namespace Clubby.GeneralUtils
                 try { t1 = (T1)converter[typeof(T1)](segs[1].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 3 < error_msgs.Length) throw new Exception(error_msgs[3]);
+                    if (error_msgs != null && 1 < error_msgs.Length) throw new Exception(error_msgs[1]);
                     else init = false;
                 }
             }
@@ -101,7 +104,7 @@ namespace Clubby.GeneralUtils
                 try { t2 = (T2)converter[typeof(T2)](segs[2].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 3 < error_msgs.Length) throw new Exception(error_msgs[3]);
+                    if (error_msgs != null && 2 < error_msgs.Length) throw new Exception(error_msgs[2]);
                     else init = false;
                 }
             }
@@ -121,7 +124,7 @@ namespace Clubby.GeneralUtils
                 try { t0 = (T0)converter[typeof(T0)](segs[0].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 4 < error_msgs.Length) throw new Exception(error_msgs[4]);
+                    if (error_msgs != null && 0 < error_msgs.Length) throw new Exception(error_msgs[0]);
                     else init = false;
                 }
             }
@@ -133,7 +136,7 @@ namespace Clubby.GeneralUtils
                 try { t1 = (T1)converter[typeof(T1)](segs[1].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 4 < error_msgs.Length) throw new Exception(error_msgs[4]);
+                    if (error_msgs != null && 1 < error_msgs.Length) throw new Exception(error_msgs[1]);
                     else init = false;
                 }
             }
@@ -145,7 +148,7 @@ namespace Clubby.GeneralUtils
                 try { t2 = (T2)converter[typeof(T2)](segs[2].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 4 < error_msgs.Length) throw new Exception(error_msgs[4]);
+                    if (error_msgs != null && 2 < error_msgs.Length) throw new Exception(error_msgs[2]);
                     else init = false;
                 }
             }
@@ -157,7 +160,7 @@ namespace Clubby.GeneralUtils
                 try { t3 = (T3)converter[typeof(T3)](segs[3].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 4 < error_msgs.Length) throw new Exception(error_msgs[4]);
+                    if (error_msgs != null && 3 < error_msgs.Length) throw new Exception(error_msgs[3]);
                     else init = false;
                 }
             }
@@ -177,7 +180,7 @@ namespace Clubby.GeneralUtils
                 try { t0 = (T0)converter[typeof(T0)](segs[0].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 5 < error_msgs.Length) throw new Exception(error_msgs[5]);
+                    if (error_msgs != null && 0 < error_msgs.Length) throw new Exception(error_msgs[0]);
                     else init = false;
                 }
             }
@@ -189,7 +192,7 @@ namespace Clubby.GeneralUtils
                 try { t1 = (T1)converter[typeof(T1)](segs[1].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 5 < error_msgs.Length) throw new Exception(error_msgs[5]);
+                    if (error_msgs != null && 1 < error_msgs.Length) throw new Exception(error_msgs[1]);
                     else init = false;
                 }
             }
@@ -201,7 +204,7 @@ namespace Clubby.GeneralUtils
                 try { t2 = (T2)converter[typeof(T2)](segs[2].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 5 < error_msgs.Length) throw new Exception(error_msgs[5]);
+                    if (error_msgs != null && 2 < error_msgs.Length) throw new Exception(error_msgs[2]);
                     else init = false;
                 }
             }
@@ -213,7 +216,7 @@ namespace Clubby.GeneralUtils
                 try { t3 = (T3)converter[typeof(T3)](segs[3].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 5 < error_msgs.Length) throw new Exception(error_msgs[5]);
+                    if (error_msgs != null && 3 < error_msgs.Length) throw new Exception(error_msgs[3]);
                     else init = false;
                 }
             }
@@ -225,7 +228,7 @@ namespace Clubby.GeneralUtils
                 try { t4 = (T4)converter[typeof(T4)](segs[4].Trim()); }
                 catch (Exception)
                 {
-                    if (error_msgs != null && 5 < error_msgs.Length) throw new Exception(error_msgs[5]);
+                    if (error_msgs != null && 4 < error_msgs.Length) throw new Exception(error_msgs[4]);
                     else init = false;
                 }
             }

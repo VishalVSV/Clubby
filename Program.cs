@@ -1,6 +1,5 @@
 ﻿using Clubby.ConfigService;
 using System;
-using Clubby.Events;
 using System.Collections.Generic;
 using Discord.WebSocket;
 using System.Threading.Tasks;
