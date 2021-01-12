@@ -1,9 +1,4 @@
-﻿using Clubby.GeneralUtils;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Clubby.Discord.CommandHandling
+﻿namespace Clubby.Discord.CommandHandling
 {
     /// <summary>
     /// The struct that contains discord command metadata.

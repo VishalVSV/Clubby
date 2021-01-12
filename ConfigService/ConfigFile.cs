@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 using Clubby.Club;
 using Clubby.Discord;
@@ -10,7 +9,6 @@ using Clubby.GeneralUtils;
 using Clubby.Scheduling;
 using Discord.WebSocket;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace Clubby.ConfigService
 {
@@ -52,7 +50,28 @@ namespace Clubby.ConfigService
         /// The number of suggestions made through the bot
         /// </summary>
         public int DiscordSuggestionCount = 0;
+        /// <summary>
+        /// The Dashboard Message for the bot
+        /// </summary>
+        public DiscordMessage? DiscordDashboard = null;
 
+        /// <summary>
+        /// The discord bot instance
+        /// </summary>
+        [JsonIgnore]
+        public DiscordBot DiscordBot = null;
+
+        /// <summary>
+        /// The time the current instance started
+        /// </summary>
+        [JsonIgnore]
+        public DateTime StartTime;
+
+        /// <summary>
+        /// The time since the start of the current instance
+        /// </summary>
+        [JsonIgnore]
+        public TimeSpan Uptime { get => DateTime.Now - StartTime; }
         
         public List<Council> Councils = new List<Council>();
 

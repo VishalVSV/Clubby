@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Clubby.Discord
+﻿namespace Clubby.Discord
 {
     /// <summary>
     /// The type of announcement made on discord

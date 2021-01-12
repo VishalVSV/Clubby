@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Clubby.GeneralUtils
 {
@@ -22,6 +20,11 @@ namespace Clubby.GeneralUtils
             T t = new T();
             initializer(ref t);
             return t;
+        }
+
+        public static string ToPrettyString(this TimeSpan span)
+        {
+            return $"{(span.Hours == 0 ? "" : $"{span.Hours} hr{(span.Hours > 1 ? "s" : "")}")} {(span.Minutes == 0 ? "" : $"{span.Minutes} min{(span.Minutes > 1 ? "s" : "")}")} {(span.Seconds == 0 ? "" : $"{span.Seconds} sec{(span.Seconds > 1 ? "s" : "")}")}";
         }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Clubby.Discord
+﻿namespace Clubby.Discord
 {
     /// <summary>
     /// Data class for Discord suggestions

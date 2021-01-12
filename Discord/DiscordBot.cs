@@ -1,9 +1,10 @@
 ﻿using Clubby.Discord.CommandHandling;
 using Clubby.GeneralUtils;
 using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -60,7 +61,7 @@ namespace Clubby.Discord
             await client.LogoutAsync();
         }
 
-        private Task Ready()
+        private async Task Ready()
         {
             commandHandler = new CommandHandler(this);
 
@@ -93,7 +94,68 @@ namespace Clubby.Discord
                 }
             };
 
-            return Task.CompletedTask;
+            // Update the bot dashboard
+            await UpdateDashboard();
+        }
+
+        /// <summary>
+        /// Update the bot dashboard based on current state.
+        /// </summary>
+        /// <returns></returns>
+        public async Task UpdateDashboard()
+        {
+            bool online = !Program.stop;
+            if (Program.config.DiscordDashboard != null)
+            {
+                IMessage msg;
+                if ((msg = GetMessage(Program.config.DiscordDashboard.Value)) != null)
+                {
+                    await (msg as RestUserMessage).ModifyAsync(m =>
+                    {
+                        m.Embed = GetDashboard(online);
+                    });
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get a Discord Message object from the id type.
+        /// </summary>
+        /// <param name="msg">The discord message to get</param>
+        /// <returns></returns>
+        public static IMessage GetMessage(DiscordMessage msg)
+        {
+            SocketTextChannel channel;
+            if ((channel = Program.config.GetChannel(msg.ChannelId) as SocketTextChannel) != null)
+            {
+                return channel.GetMessageAsync(msg.MessageId).Result;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Get an embed with all the dashboard details
+        /// </summary>
+        /// <param name="online">Is the bot online?</param>
+        /// <returns></returns>
+        public Embed GetDashboard(bool online)
+        {
+            StringBuilder plugins = new StringBuilder();
+            int i = 1;
+            commandHandler.commands.LoadedTypes.Keys.ToList().ForEach(s =>
+            {
+                plugins.AppendLine($"{i++}. {s}");
+            });
+
+
+            return new EmbedBuilder()
+                .WithColor(online ? Color.Green : Color.Red)
+                .WithTitle("Dashboard")
+                .AddField("Loaded Plugins:", plugins.ToString())
+                .AddField("Uptime:", Program.config.Uptime.ToPrettyString())
+                .AddField("Number of suggestions so far:", Program.config.DiscordSuggestionCount)
+                .AddField("Current prefix:", $"`{Program.config.DiscordBotPrefix}`")
+                .Build();
         }
 
         private async Task MessageReceived(SocketMessage arg)
@@ -103,7 +165,7 @@ namespace Clubby.Discord
                 return;
 
             // Defer handling to the command handler
-            await commandHandler.Handle(arg,client.CurrentUser.Id);
+            await commandHandler.Handle(arg, client.CurrentUser.Id);
         }
 
         private Task Log(LogMessage arg)
