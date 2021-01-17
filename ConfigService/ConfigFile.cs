@@ -6,8 +6,12 @@ using Clubby.Club;
 using Clubby.Discord;
 using Clubby.Discord.CommandHandling;
 using Clubby.GeneralUtils;
+using Clubby.GoogleServices;
 using Clubby.Scheduling;
 using Discord.WebSocket;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Sheets.v4;
+using Google.Apis.Util.Store;
 using Newtonsoft.Json;
 
 namespace Clubby.ConfigService
@@ -20,7 +24,7 @@ namespace Clubby.ConfigService
         /// <summary>
         /// Path pointing to the file that this instance deals with.
         /// </summary>
-        protected string filePath = "./config.txt";
+        protected string filePath = "./config.json";
 
         /// <summary>
         /// The bot token to access discord.
@@ -54,6 +58,57 @@ namespace Clubby.ConfigService
         /// The Dashboard Message for the bot
         /// </summary>
         public DiscordMessage? DiscordDashboard = null;
+        /// <summary>
+        /// The private backing for the Register file Id.
+        /// </summary>
+        private string _RegisterFileId = null;
+        /// <summary>
+        /// The sheet id for the register.
+        /// </summary>
+        public string RegisterFileId
+        {
+            get
+            {
+                return _RegisterFileId;
+            }
+            set
+            {
+                _RegisterFileId = value;
+                // If you can reinitialize the sheets handler whenever this property changes.
+                if (_RegisterFileId != null && GoogleUserCreds != null)
+                    scheduleSheetsHandler = new ScheduleSheetsHandler(_RegisterFileId, RegisterScheduleSheetName);
+            }
+        }
+
+        /// <summary>
+        /// The cursor string used to find where to start the next record.
+        /// </summary>
+        public string RegisterClubbyCursor = "*";
+        /// <summary>
+        /// The sheet name used as the schedule in the register
+        /// </summary>
+        public string RegisterScheduleSheetName = null;
+        /// <summary>
+        /// The email id for the service account that clubby will use.
+        /// </summary>
+        public string serviceAccountEmail = null;
+
+        /// <summary>
+        /// The sheets file handler for the schedule
+        /// </summary>
+        [JsonIgnore]
+        public ScheduleSheetsHandler scheduleSheetsHandler = null;
+
+        /// <summary>
+        /// Dictionary of unfinished debates to log to the register
+        /// </summary>
+        public Dictionary<int, Debate> UnfinishedDebates = new Dictionary<int, Debate>();
+
+        /// <summary>
+        /// The credentials used to access the register.
+        /// </summary>
+        [JsonIgnore]
+        public ServiceAccountCredential GoogleUserCreds = null;
 
         /// <summary>
         /// The discord bot instance
@@ -72,7 +127,7 @@ namespace Clubby.ConfigService
         /// </summary>
         [JsonIgnore]
         public TimeSpan Uptime { get => DateTime.Now - StartTime; }
-        
+
         public List<Council> Councils = new List<Council>();
 
         /// <summary>
@@ -146,7 +201,7 @@ namespace Clubby.ConfigService
         public void Destroy()
         {
             config_watcher.EnableRaisingEvents = false;
-            File.WriteAllText(filePath, JsonConvert.SerializeObject(this, Formatting.Indented,settings));
+            File.WriteAllText(filePath, JsonConvert.SerializeObject(this, Formatting.Indented, settings));
         }
 
         /// <summary>
@@ -172,6 +227,18 @@ namespace Clubby.ConfigService
             if (config != null)
             {
                 config.filePath = path;
+                // Load google credentials for the service account.
+                using (FileStream stream = new FileStream("./clubby-v2-c8f207a8bf59.json", FileMode.Open, FileAccess.Read))
+                {
+                    config.GoogleUserCreds = (ServiceAccountCredential)GoogleCredential.FromStream(stream).UnderlyingCredential;
+                    var initializer = new ServiceAccountCredential.Initializer(config.GoogleUserCreds.Id)
+                    {
+                        User = config.serviceAccountEmail,
+                        Key = config.GoogleUserCreds.Key,
+                        Scopes = new string[] { SheetsService.Scope.Spreadsheets }
+                    };
+                    config.GoogleUserCreds = new ServiceAccountCredential(initializer);
+                }
 
                 config.config_watcher = new FileSystemWatcher(Path.GetDirectoryName(path));
                 config.config_watcher.Changed += config.Config_file_edited;
@@ -197,7 +264,7 @@ namespace Clubby.ConfigService
                         using (StreamReader sr = new StreamReader(e.FullPath))
                         {
                             JsonConvert.PopulateObject(sr.ReadToEnd(), this);
-                            Logger.Log(this,"Config reloaded!");
+                            Logger.Log(this, "Config reloaded!");
                         }
                     }
                     return;

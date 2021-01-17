@@ -1,3 +1,3 @@
 ﻿# TODO
-1. Add bot dashboard
-2. Maybe google services?
+1. Add bot dashboard - Done
+2. Maybe google services - Done

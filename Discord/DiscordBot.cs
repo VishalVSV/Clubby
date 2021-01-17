@@ -158,14 +158,16 @@ namespace Clubby.Discord
                 .Build();
         }
 
-        private async Task MessageReceived(SocketMessage arg)
+        private Task MessageReceived(SocketMessage arg)
         {
             // Do not process commands sent by the bot.
             if (arg.Author.Id == client.CurrentUser.Id)
-                return;
+                return Task.CompletedTask;
 
             // Defer handling to the command handler
-            await commandHandler.Handle(arg, client.CurrentUser.Id);
+            _ = commandHandler.Handle(arg, client.CurrentUser.Id);
+
+            return Task.CompletedTask;
         }
 
         private Task Log(LogMessage arg)

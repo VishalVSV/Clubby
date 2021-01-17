@@ -10,19 +10,35 @@ namespace Clubby
 {
     public class Program
     {
+        /// <summary>
+        /// The master config file.
+        /// </summary>
         public static ConfigFile config;
+        /// <summary>
+        /// Gets whether the program should stop.
+        /// </summary>
         public static bool stop = false;
+        /// <summary>
+        /// Has a restart already been signalled?
+        /// </summary>
         static bool restart_signalled = false;
 
         static void Main(string[] args)
         {
-            config = "./config.txt";
+            // Get config file
+            config = "./config.json";
 
+            // Reload string to force the config file to create a sheets handler.
+            // I know its a hacky solution but hey it works...
+            config.RegisterFileId = config.RegisterFileId;
+
+            // Disable ctrl+C killing the bot. We can do that part ourselves.
             Console.CancelKeyPress += Console_CancelKeyPress;
 
+            // If there wasn't a config file generate a new one.
             if(config == null)
             {
-                config = ConfigFile.MakeDefault("./config.txt");
+                config = ConfigFile.MakeDefault("./config.json");
                 config.Save();
 
                 Logger.Log<Program>("Couldn't find config file!");
@@ -34,7 +50,10 @@ namespace Clubby
 
             try
             {
+                // Set start time
                 config.StartTime = DateTime.Now;
+
+                // Show swag banner if it exists
                 if(File.Exists("./banner.ans"))
                 {
                     Console.WriteLine(File.ReadAllText("./banner.ans"));
@@ -42,10 +61,12 @@ namespace Clubby
 
                 Console.ReadKey(true);
 
+                // Initialize the bot
                 config.DiscordBot = new DiscordBot();
 
                 config.DiscordBot.Start().Wait();
 
+                // Start autosaving logic
                 DateTime time_since_last_save = DateTime.Now;
                 while (!stop)
                 {
@@ -54,7 +75,10 @@ namespace Clubby
                         time_since_last_save = DateTime.Now;
                         config.Save();
                     }
+                    // Tick the scheduler
                     config.scheduler.Tick();
+
+                    // Sleep to not kill the CPU
                     Thread.Sleep(10);
 
                     if (config.DiscordBot.Disconnected && restart_signalled)
@@ -73,10 +97,12 @@ namespace Clubby
                         });
                     }
 
+                    // Non blocking key per key reading.
                     while (Console.KeyAvailable)
                     {
                         if (Console.ReadKey(true).Key == ConsoleKey.Escape)
                         {
+                            Logger.Log<Program>("Stopping");
                             stop = true;
                             break;
                         }
@@ -96,6 +122,7 @@ namespace Clubby
 
         private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
+            Logger.Log<Program>("Stopping");
             e.Cancel = true;
             stop = true;
         }

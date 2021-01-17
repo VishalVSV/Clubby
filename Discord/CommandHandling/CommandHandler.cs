@@ -17,7 +17,7 @@ namespace Clubby.Discord.CommandHandling
         /// <summary>
         /// Random object used to fuel the bot's sentience
         /// </summary>
-        private static Random rand = new Random();
+        private static readonly Random rand = new Random();
 
         /// <summary>
         /// The Manager for all the Commands loaded from external plugins.
@@ -39,7 +39,7 @@ namespace Clubby.Discord.CommandHandling
         /// Private reference to the bot that owns the handler
         /// </summary>
         [JsonIgnore]
-        private DiscordBot bot;
+        private readonly DiscordBot bot;
 
         public CommandHandler(DiscordBot bot)
         {
@@ -157,7 +157,7 @@ namespace Clubby.Discord.CommandHandling
                         // If the bot is cooperative execute the command's local handler.
                         try
                         {
-                            await cmd.Handle(msg, (msg.Channel as SocketGuildChannel).Guild, this);                            
+                            await cmd.Handle(msg, (msg.Channel as SocketGuildChannel).Guild, this);
                         }
                         catch(Exception e)
                         {
