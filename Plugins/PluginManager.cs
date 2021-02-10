@@ -44,8 +44,6 @@ namespace Clubby.Plugins
             // Loop over all the dll files in the given folder
             foreach (string dll in Directory.EnumerateFiles(folder, "*.dll", SearchOption.TopDirectoryOnly))
             {
-                Logger.Log(this, $"Loading {Path.GetFileNameWithoutExtension(dll)}");
-
                 // Read the dll into a byte array
                 // Note: This is done to let the files be changed after loading to allow for hotloading.
                 //       It is the best way I knew how to do it, not the actual best way to do it. This is memory intensive for large dlls.
@@ -81,7 +79,6 @@ namespace Clubby.Plugins
                     if (plugin_type.IsAssignableFrom(types[i]) && types[i].GetCustomAttribute<PluginExport>() != null)
                     {
                         plugin_types.Add(types[i]);
-                        Logger.Log(this, $"  Loaded {types[i].Name}");
                     }
                 }
 
