@@ -141,7 +141,7 @@ namespace Clubby.Discord.CommandHandling
                 {
                     try
                     {
-                        await ExecutingCommand[msg.Author.Id].Handle(msg, (msg.Channel as SocketGuildChannel).Guild, this);
+                        await ExecutingCommand[msg.Author.Id].Handle(msg, (msg.Channel as SocketGuildChannel) != null ? (msg.Channel as SocketGuildChannel).Guild : null, this);
                     }
                     catch (Exception e)
                     {
@@ -179,7 +179,7 @@ namespace Clubby.Discord.CommandHandling
                         // If the bot is cooperative execute the command's local handler.
                         try
                         {
-                            await cmd.Handle(msg, (msg.Channel as SocketGuildChannel).Guild, this);
+                            await cmd.Handle(msg, (msg.Channel as SocketGuildChannel) != null ? (msg.Channel as SocketGuildChannel).Guild : null, this);
 
                             // Update the number of times this command has been used.
                             CommandExecutionIncrement(command);

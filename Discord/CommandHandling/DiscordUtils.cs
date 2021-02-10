@@ -17,7 +17,7 @@ namespace Clubby.Discord.CommandHandling
         public static bool IsFromOwner(this SocketMessage msg)
         {
             var a = (msg.Channel as SocketGuildChannel);
-            return a.Guild.OwnerId == msg.Author.Id;
+            return a != null && a.Guild.OwnerId == msg.Author.Id;
         }
 
         /// <summary>

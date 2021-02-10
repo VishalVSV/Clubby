@@ -52,11 +52,15 @@ namespace Clubby.Discord.CommandHandling
             if (owner)
                 return (int)DiscordCommandPermission.Owner;
 
+
             // Set max_perm to the smallest value to find the maximum permission among the roles assigned to the user.
             int max_perm = int.MinValue;
-            foreach (SocketRole role in (user as SocketGuildUser).Roles)
+            if ((user as SocketGuildUser) != null)
             {
-                max_perm = Math.Max(max_perm, Program.config.DiscordPermissions.GetRolePerms(role, owner));
+                foreach (SocketRole role in (user as SocketGuildUser).Roles)
+                {
+                    max_perm = Math.Max(max_perm, Program.config.DiscordPermissions.GetRolePerms(role, owner));
+                }
             }
 
             // Get the highest of user and role permissions
