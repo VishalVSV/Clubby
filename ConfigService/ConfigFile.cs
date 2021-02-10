@@ -27,6 +27,11 @@ namespace Clubby.ConfigService
         protected string filePath = "./config.json";
 
         /// <summary>
+        /// Number of times each command has been executed.
+        /// </summary>
+        public Dictionary<string, ulong> CommandExecutions = new Dictionary<string, ulong>();
+
+        /// <summary>
         /// The bot token to access discord.
         /// </summary>
         public string DiscordBotToken = "YOUR_BOT_TOKEN";
@@ -255,6 +260,28 @@ namespace Clubby.ConfigService
         }
 
         /// <summary>
+        /// Check if file is still being edited.
+        /// </summary>
+        /// <param name="filePath">Path to check</param>
+        private bool IsFileLocked(string filePath)
+        {
+            FileInfo file = new FileInfo(filePath);
+            try
+            {
+                using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Callback to reload the config on edit
         /// </summary>
         private void Config_file_edited(object sender, FileSystemEventArgs e)
@@ -273,12 +300,13 @@ namespace Clubby.ConfigService
                     }
                     return;
                 }
-                catch (IOException)
+                catch (Exception err)
                 {
                     Thread.Sleep(100);
-                    continue;
+                    Logger.Log(this, $"Error: {err.Message} occured! Retrying");
                 }
             }
+
 
             Logger.Log(this, "Config failed to reload! Save the file again if changes are important!");
         }

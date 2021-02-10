@@ -96,6 +96,18 @@ namespace Clubby.Discord.CommandHandling
                 ExecutingCommand.Add(id, cmd);
         }
 
+        private void CommandExecutionIncrement(string name)
+        {
+            if (Program.config.CommandExecutions.ContainsKey(name))
+            {
+                Program.config.CommandExecutions[name] += 1;
+            }
+            else
+            {
+                Program.config.CommandExecutions.Add(name, 1);
+            }
+        }
+
         /// <summary>
         /// Handles a Discord Message and manages dynamic dispatch.
         /// </summary>
@@ -126,7 +138,17 @@ namespace Clubby.Discord.CommandHandling
                 }
                 // Dispatch to the executing command
                 else
-                    await ExecutingCommand[msg.Author.Id].Handle(msg, (msg.Channel as SocketGuildChannel).Guild, this);
+                {
+                    try
+                    {
+                        await ExecutingCommand[msg.Author.Id].Handle(msg, (msg.Channel as SocketGuildChannel).Guild, this);
+                    }
+                    catch (Exception e)
+                    {
+                        // If the command fails notify the user as to why.
+                        await msg.Channel.SendError(e.Message);
+                    }
+                }
             }
             // If the message is a command it will start with the current prefix
             else if (msg.Content.StartsWith(Program.config.DiscordBotPrefix))
@@ -158,6 +180,9 @@ namespace Clubby.Discord.CommandHandling
                         try
                         {
                             await cmd.Handle(msg, (msg.Channel as SocketGuildChannel).Guild, this);
+
+                            // Update the number of times this command has been used.
+                            CommandExecutionIncrement(command);
                         }
                         catch(Exception e)
                         {
