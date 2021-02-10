@@ -35,6 +35,10 @@ namespace Clubby.ConfigService
         /// </summary>
         public string DiscordBotPrefix = "+";
         /// <summary>
+        /// The id of the debate server
+        /// </summary>
+        public ulong DiscordGuildId = 0;
+        /// <summary>
         /// Named channels used for various purposes inside the bot implementation and over plugins
         /// </summary>
         public Dictionary<string, ulong> DiscordChannels = new Dictionary<string, ulong>();

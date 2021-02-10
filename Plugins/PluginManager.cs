@@ -12,11 +12,14 @@ namespace Clubby.Plugins
     /// <typeparam name="T">The type to extract from plugins</typeparam>
     /// <typeparam name="U">The type of data to provide the initializer</typeparam>
     public class PluginManager<T,U>
+        where U: PluginData
     {
         /// <summary>
         /// Dictionary of all types loaded from plugins
         /// </summary>
         public Dictionary<string, List<Type>> LoadedTypes = new Dictionary<string, List<Type>>();
+
+        
 
         /// <summary>
         /// Load plugins from a folder with dlls
@@ -25,6 +28,8 @@ namespace Clubby.Plugins
         /// <param name="data">The data object to provide to the plugin on initialization</param>
         public void Load(string folder,U data)
         {
+            data.OnReload();
+
             // Clear all the current types to prevent conflicts
             LoadedTypes.Clear();
 

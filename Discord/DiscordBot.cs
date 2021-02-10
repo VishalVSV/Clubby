@@ -1,8 +1,11 @@
 ﻿using Clubby.Discord.CommandHandling;
+using Clubby.EventManagement;
 using Clubby.GeneralUtils;
+using Clubby.Plugins;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Text;
@@ -13,7 +16,7 @@ namespace Clubby.Discord
     /// <summary>
     /// Implementation of the Discord bot to handle commands and more.
     /// </summary>
-    public class DiscordBot
+    public class DiscordBot : PluginData
     {
         /// <summary>
         /// The client that handles communications between the bot and Discord.
@@ -23,6 +26,12 @@ namespace Clubby.Discord
         /// The command handler instance that defers handling to the plugins.
         /// </summary>
         CommandHandler commandHandler;
+
+        /// <summary>
+        /// Event handler for Received Messages
+        /// </summary>
+        [JsonIgnore]
+        public EventManager<SocketMessage> MessageReceivedHandler = new EventManager<SocketMessage>();
 
         /// <summary>
         /// Gets the connection state of the bot
@@ -41,7 +50,6 @@ namespace Clubby.Discord
         public async Task Start()
         {
             client = new DiscordSocketClient();
-
 
             client.Log += Log;
             client.MessageReceived += MessageReceived;
@@ -164,10 +172,26 @@ namespace Clubby.Discord
             if (arg.Author.Id == client.CurrentUser.Id)
                 return Task.CompletedTask;
 
+            // Send the message to whoever wants it. This may either be a command or a suggestion
+            MessageReceivedHandler.Dispatch("MessageReceived", arg);
+
+            return Task.CompletedTask;
+        }
+
+        private EventResult CommandHandling(SocketMessage arg)
+        {
+
             // Defer handling to the command handler
             _ = commandHandler.Handle(arg, client.CurrentUser.Id);
 
-            return Task.CompletedTask;
+            return EventResult.Stop;
+        }
+
+        public override void OnReload()
+        {
+            MessageReceivedHandler.events.Clear();
+
+            MessageReceivedHandler.On("MessageReceived", CommandHandling, 10);
         }
 
         private Task Log(LogMessage arg)
