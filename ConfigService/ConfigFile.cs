@@ -32,6 +32,11 @@ namespace Clubby.ConfigService
         public Dictionary<string, ulong> CommandExecutions = new Dictionary<string, ulong>();
 
         /// <summary>
+        /// The plugins disabled per server.
+        /// </summary>
+        public Dictionary<ulong, List<string>> DisabledPlugins = new Dictionary<ulong, List<string>>();
+
+        /// <summary>
         /// The bot token to access discord.
         /// </summary>
         public string DiscordBotToken = "YOUR_BOT_TOKEN";

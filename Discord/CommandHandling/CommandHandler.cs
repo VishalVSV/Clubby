@@ -1,4 +1,5 @@
-﻿using Clubby.Plugins;
+﻿using Clubby.GeneralUtils;
+using Clubby.Plugins;
 using Discord;
 using Discord.WebSocket;
 using Newtonsoft.Json;
@@ -45,9 +46,16 @@ namespace Clubby.Discord.CommandHandling
         {
             this.bot = bot;
             // Check and load command plugins if found.
-            if (Directory.Exists("./Commands"))
+            try
             {
-                commands.Load("./Commands", bot);
+                if (Directory.Exists("./Commands"))
+                {
+                    commands.Load("./Commands", bot);
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
         }
 
@@ -96,6 +104,10 @@ namespace Clubby.Discord.CommandHandling
                 ExecutingCommand.Add(id, cmd);
         }
 
+        /// <summary>
+        /// Increment the number of times the command has executed.
+        /// </summary>
+        /// <param name="name">The name of the command</param>
         private void CommandExecutionIncrement(string name)
         {
             if (Program.config.CommandExecutions.ContainsKey(name))
@@ -156,7 +168,10 @@ namespace Clubby.Discord.CommandHandling
                 // Get the command name from the message
                 string command = ExtractCommand(msg.Content);
                 // Get the type of the command and construct an instance to handle the command.
-                IDiscordCommand cmd = commands.GetInstance(Construct_Identifier(command));
+                IDiscordCommand cmd = commands.GetInstance(Construct_Identifier(command, (msg.Author as SocketGuildUser).ThenOrElse(
+                    user => user.Guild.Id,
+                    (ulong)0
+                )));
                 // If the command existed cmd will be non null
                 if (cmd != null)
                 {
@@ -206,10 +221,21 @@ namespace Clubby.Discord.CommandHandling
         /// Constructs a predicate to use to find the command required from the plugin manager.
         /// </summary>
         /// <param name="cmd">The name of the command</param>
-        private Predicate<Type> Construct_Identifier(string cmd)
+        private Predicate<(string, Type)> Construct_Identifier(string cmd, ulong id = 0)
         {
-            return (t) =>
+            return (a) =>
             {
+                var t = a.Item2;
+                var plugin = a.Item1;
+
+                if(id != 0 && Program.config.DisabledPlugins.ContainsKey(id))
+                {
+                    if (Program.config.DisabledPlugins[id].Contains(plugin))
+                    {
+                        return false;
+                    }
+                }
+
                 return t.Name.ToLower() == cmd.ToLower();
             };
         }
