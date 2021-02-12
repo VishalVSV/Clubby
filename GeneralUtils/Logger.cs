@@ -14,7 +14,7 @@ namespace Clubby.GeneralUtils
         /// <param name="message">The message to be logged</param>
         public static void Log(object sender,string message)
         {
-            Console.WriteLine($"{sender.GetType().Name}:  {message}");
+            Console.WriteLine($"{sender.GetType().Name}: [{DateTime.Now.ToString("dd/MM/yy hh:mm:ss")}] {message}");
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Clubby.GeneralUtils
         /// <typeparam name="T">The type of the class logging the message</typeparam>
         public static void Log<T>(string message)
         {
-            Console.WriteLine($"{typeof(T).Name}:  {message}");
+            Console.WriteLine($"{typeof(T).Name}: [{DateTime.Now.ToString("dd/MM/yy hh:mm:ss")}] {message}");
         }
     }
 }
