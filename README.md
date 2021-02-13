@@ -19,7 +19,8 @@ Clubby has a state of the art, ad hoc, dll based "plugin" system. Future council
 If someone who knows how to code ever sees this, I'm very sorry for the plugin system. It may cause serious medical issues if taken seriously. My philosophy with code, at least with c# has been "If it works don't fix it".
 
 ## It even makes coffee!
-<img src="https://raw.githubusercontent.com/VishalVSV/Clubby/master/Images/coffee.png" width="30%">
+<img src="https://raw.githubusercontent.com/VishalVSV/Clubby/master/Images/coffee.png" width="50%">
+
 jk i wish it did....
 
 
