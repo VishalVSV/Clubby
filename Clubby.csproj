@@ -10,8 +10,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AnimatedGif" Version="1.0.5" />
     <PackageReference Include="Discord.Net" Version="2.3.0" />
     <PackageReference Include="Google.Apis.Sheets.v4" Version="1.49.0.2175" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>

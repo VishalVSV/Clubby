@@ -5,6 +5,7 @@ using Clubby.Discord;
 using System.Threading;
 using System.IO;
 using Clubby.GeneralUtils;
+using System.Reflection;
 
 namespace Clubby
 {

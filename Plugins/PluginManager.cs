@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 
 namespace Clubby.Plugins
 {
@@ -11,81 +12,122 @@ namespace Clubby.Plugins
     /// </summary>
     /// <typeparam name="T">The type to extract from plugins</typeparam>
     /// <typeparam name="U">The type of data to provide the initializer</typeparam>
-    public class PluginManager<T,U>
-        where U: PluginData
+    public class PluginManager<T, U>
+        where U : PluginData
     {
         /// <summary>
         /// Dictionary of all types loaded from plugins
         /// </summary>
         public Dictionary<string, List<Type>> LoadedTypes = new Dictionary<string, List<Type>>();
 
-        
+        static PluginManager()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += (s, a) =>
+            {
+                Logger.Log<PluginManager<object,PluginData>>($"{a.RequestingAssembly.GetName().Name} asked for {a.Name}");
+
+                Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+                for (int i = 0; i < assemblies.Length; i++)
+                {
+                    if(assemblies[i].GetName().FullName == a.Name)
+                    {
+                        return assemblies[i];
+                    }
+                }
+
+                return null;
+            };
+        }
 
         /// <summary>
         /// Load plugins from a folder with dlls
         /// </summary>
         /// <param name="folder">The folder to search</param>
         /// <param name="data">The data object to provide to the plugin on initialization</param>
-        public void Load(string folder,U data)
+        public void Load(string folder, U data)
         {
-            data.OnReload();
-
-            // Clear all the current types to prevent conflicts
-            LoadedTypes.Clear();
-
-            // Clear the periodic activity closures set by the plugins
-            // Note: This is a consquence of the specific implementation and use case. If this code is ever used as an example for
-            //       how to implement plugins this line is not needed.
-            Program.config.scheduler.PeriodicActivities.Clear();
-
-            // Get type of plugin to import
-            Type plugin_type = typeof(T);
-
-            // Loop over all the dll files in the given folder
-            foreach (string dll in Directory.EnumerateFiles(folder, "*.dll", SearchOption.TopDirectoryOnly))
+            try
             {
-                // Read the dll into a byte array
-                // Note: This is done to let the files be changed after loading to allow for hotloading.
-                //       It is the best way I knew how to do it, not the actual best way to do it. This is memory intensive for large dlls.
-                byte[] b = File.ReadAllBytes(dll);
+                data.OnReload();
 
-                // Load the bytes into a assembly
-                Assembly plugin_assembly = Assembly.Load(b);
+                // Clear all the current types to prevent conflicts
+                LoadedTypes.Clear();
 
-                // List of types to assign to the current plugin
-                List<Type> plugin_types = new List<Type>();
+                // Clear the periodic activity closures set by the plugins
+                // Note: This is a consquence of the specific implementation and use case. If this code is ever used as an example for
+                //       how to implement plugins this line is not needed.
+                Program.config.scheduler.PeriodicActivities.Clear();
 
-                // Get all public classes
-                Type[] types = plugin_assembly.GetExportedTypes();
-                for (int i = 0; i < types.Length; i++)
+                // Get type of plugin to import
+                Type plugin_type = typeof(T);
+
+                // Loop over all the dll files in the given folder
+                foreach (string dll in Directory.EnumerateFiles(folder, "*.dll", SearchOption.TopDirectoryOnly))
                 {
-                    // If the class is static [types[i].IsAbstract && types[i].IsSealed] it could be the initializer.
-                    // If it is provide it with the data given
-                    if (types[i].IsAbstract && types[i].IsSealed && types[i].GetCustomAttribute<PluginInit>() != null)
+                    // Read the dll into a byte array
+                    // Note: This is done to let the files be changed after loading to allow for hotloading.
+                    //       It is the best way I knew how to do it, not the actual best way to do it. This is memory intensive for large dlls.
+                    byte[] b = File.ReadAllBytes(dll);
+
+                    // Load the bytes into a assembly
+                    Assembly plugin_assembly = Assembly.Load(b);
+
+                    AssemblyName[] deps = plugin_assembly.GetReferencedAssemblies();
+
+                    string[] loaded_assemblies = AppDomain.CurrentDomain.GetAssemblies().Select((a) => a.GetName().Name).ToArray();
+
+                    for (int i = 0; i < deps.Length; i++)
                     {
-                        try
+                        if (!loaded_assemblies.Contains(deps[i].Name))
                         {
-                            // Try and get the initializer function
-                            MethodInfo mi = types[i].GetMethod("Init");
-                            if (mi != null)
+                            if (File.Exists($"./{deps[i].Name}.dll"))
                             {
-                                mi.Invoke(null, new object[] { data });
+                                byte[] dep_data = File.ReadAllBytes($"./{deps[i].Name}.dll");
+                                Assembly a = Assembly.Load(dep_data);
                             }
                         }
-                        catch (Exception) { }
                     }
 
-                    // If the type is an exported type and is of the type required add it to the list.
-                    if (plugin_type.IsAssignableFrom(types[i]) && types[i].GetCustomAttribute<PluginExport>() != null)
+                    // List of types to assign to the current plugin
+                    List<Type> plugin_types = new List<Type>();
+
+                    // Get all public classes
+                    Type[] types = plugin_assembly.GetExportedTypes();
+                    for (int i = 0; i < types.Length; i++)
                     {
-                        plugin_types.Add(types[i]);
+                        // If the class is static [types[i].IsAbstract && types[i].IsSealed] it could be the initializer.
+                        // If it is provide it with the data given
+                        if (types[i].IsAbstract && types[i].IsSealed && types[i].GetCustomAttribute<PluginInit>() != null)
+                        {
+                            try
+                            {
+                                // Try and get the initializer function
+                                MethodInfo mi = types[i].GetMethod("Init");
+                                if (mi != null)
+                                {
+                                    mi.Invoke(null, new object[] { data });
+                                }
+                            }
+                            catch (Exception) { }
+                        }
+
+                        // If the type is an exported type and is of the type required add it to the list.
+                        if (plugin_type.IsAssignableFrom(types[i]) && types[i].GetCustomAttribute<PluginExport>() != null)
+                        {
+                            plugin_types.Add(types[i]);
+                        }
                     }
+
+                    Logger.Log(this, $"Loaded {Path.GetFileNameWithoutExtension(dll)}");
+
+                    // Register all the types into the dictionary under the plugin name
+                    LoadedTypes.Add(Path.GetFileNameWithoutExtension(dll), plugin_types);
                 }
-
-                Logger.Log(this, $"Loaded {Path.GetFileNameWithoutExtension(dll)}");
-
-                // Register all the types into the dictionary under the plugin name
-                LoadedTypes.Add(Path.GetFileNameWithoutExtension(dll), plugin_types);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
 
@@ -94,13 +136,13 @@ namespace Clubby.Plugins
         /// </summary>
         /// <param name="predicate">The predicate to use to identify the type</param>
         /// <returns></returns>
-        public T GetInstance(Predicate<(string,Type)> predicate)
+        public T GetInstance(Predicate<(string, Type)> predicate)
         {
-            foreach (var (plugin,types) in LoadedTypes)
+            foreach (var (plugin, types) in LoadedTypes)
             {
                 for (int i = 0; i < types.Count; i++)
                 {
-                    if (predicate((plugin,types[i])))
+                    if (predicate((plugin, types[i])))
                     {
                         return (T)Activator.CreateInstance(types[i]);
                     }
