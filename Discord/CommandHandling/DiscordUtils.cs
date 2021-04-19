@@ -1,6 +1,8 @@
 ﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Clubby.Discord.CommandHandling
@@ -38,6 +40,74 @@ namespace Clubby.Discord.CommandHandling
         public static async Task<RestUserMessage> SendOk(this ISocketMessageChannel channel, string success_msg)
         {
             return await channel.SendMessageAsync(null, false, new EmbedBuilder().WithTitle("Success").WithDescription(success_msg).WithColor(Color.Green).Build());
+        }
+
+        public static string[] Arguments(this SocketMessage msg)
+        {
+            List<string> args = new List<string>();
+
+            string src = msg.Content;
+            int i = 0;
+
+            StringBuilder token = new StringBuilder();
+            while (i < src.Length)
+            {
+                if (src[i] == '"')
+                {
+                    if (token.ToString() != "")
+                    {
+                        args.Add(token.ToString());
+                        token.Clear();
+                    }
+                    i++;
+                    while (i < src.Length && src[i] != '"')
+                    {
+                        token.Append(src[i++]);
+                    }
+                    i++;
+
+                    if (token.ToString() != "")
+                    {
+                        args.Add(token.ToString());
+                        token.Clear();
+                    }
+                }
+                else if (src[i] == ' ')
+                {
+                    if (token.ToString() != "")
+                    {
+                        args.Add(token.ToString());
+                        token.Clear();
+                    }
+                }
+                else
+                {
+                    token.Append(src[i]);
+                }
+                i++;
+            }
+
+            if(token.ToString() != "")
+            {
+                args.Add(token.ToString());
+            }
+
+            return args.ToArray();
+        }
+
+        // Get a proper username all the time. Guaranteed to never return null.
+        public static string ResolvedName(this SocketUser user)
+        {
+            if(user as IGuildUser != null)
+            {
+                if ((user as IGuildUser).Nickname != null)
+                    return (user as IGuildUser).Nickname;
+                else return user.Username;
+            }
+            else
+            {
+                return user.Username;
+            }
         }
     }
 }

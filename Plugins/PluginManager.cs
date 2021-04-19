@@ -20,26 +20,6 @@ namespace Clubby.Plugins
         /// </summary>
         public Dictionary<string, List<Type>> LoadedTypes = new Dictionary<string, List<Type>>();
 
-        static PluginManager()
-        {
-            AppDomain.CurrentDomain.AssemblyResolve += (s, a) =>
-            {
-                Logger.Log<PluginManager<object,PluginData>>($"{a.RequestingAssembly.GetName().Name} asked for {a.Name}");
-
-                Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-                for (int i = 0; i < assemblies.Length; i++)
-                {
-                    if(assemblies[i].GetName().FullName == a.Name)
-                    {
-                        return assemblies[i];
-                    }
-                }
-
-                return null;
-            };
-        }
-
         /// <summary>
         /// Load plugins from a folder with dlls
         /// </summary>

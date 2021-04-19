@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Clubby.GeneralUtils
 {
@@ -38,6 +39,12 @@ namespace Clubby.GeneralUtils
                 return else_val;
         }
 
+        public static T IfNull<T>(this T t, Func<T> func)
+        {
+            if (t == null) return func();
+            else return t;
+        }
+
         // Helper function to add to a list or create one if it doesn't exist
         public static void AddOrAppend<T, U>(this Dictionary<T, List<U>> dict, T key, U val)
         {
@@ -70,6 +77,22 @@ namespace Clubby.GeneralUtils
         public static string ToPrettyString(this TimeSpan span)
         {
             return $"{(span.Hours == 0 ? "" : $"{span.Hours} hr{(span.Hours > 1 ? "s" : "")}")} {(span.Minutes == 0 ? "" : $"{span.Minutes} min{(span.Minutes > 1 ? "s" : "")}")} {(span.Seconds == 0 ? "" : $"{span.Seconds} sec{(span.Seconds > 1 ? "s" : "")}")}";
+        }
+
+        public static string MakeString<T>(this IEnumerable<T> a)
+        {
+            StringBuilder res = new StringBuilder();
+
+            res.Append("[");
+            foreach (var item in a)
+            {
+                res.Append(item);
+                res.Append(", ");
+            }
+            res.Remove(res.Length - 2, 2);
+            res.Append("]");
+
+            return res.ToString();
         }
     }
 }
