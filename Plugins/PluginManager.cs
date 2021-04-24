@@ -137,15 +137,15 @@ namespace Clubby.Plugins
         /// </summary>
         /// <param name="predicate">The predicate used to identify the types required</param>
         /// <returns></returns>
-        public List<T> GetInstances(Predicate<Type> predicate)
+        public List<T> GetInstances(Predicate<(string, Type)> predicate)
         {
             List<T> plugins = new List<T>();
 
-            foreach (List<Type> types in LoadedTypes.Values)
+            foreach (var (plugin, types) in LoadedTypes)
             {
                 for (int i = 0; i < types.Count; i++)
                 {
-                    if (predicate(types[i]))
+                    if (predicate((plugin, types[i])))
                     {
                         plugins.Add((T)Activator.CreateInstance(types[i]));
                     }

@@ -76,7 +76,9 @@ namespace Clubby.Discord.CommandHandling
         {
             return commands.GetPlugins((f) =>
             {
-                return (int)((IDiscordCommand)Activator.CreateInstance(f)).GetMinimumPerms() <= max_perms;
+                
+                var cmd = (IDiscordCommand)Activator.CreateInstance(f);
+                return (int)(cmd).GetMinimumPerms() <= max_perms;
             }).ToArray();
         }
 
