@@ -205,6 +205,8 @@ namespace Clubby.Discord.CommandHandling
                         {
                             // If the command fails notify the user as to why.
                             await msg.Channel.SendError(e.Message);
+
+                            File.WriteAllText("./last_error.txt", e.StackTrace);
                         }
                     }
                     // Reject the execution attempt if the user doesn't have the expected permissions

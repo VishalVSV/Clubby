@@ -5,6 +5,7 @@ using Clubby.Discord;
 using System.Threading;
 using System.IO;
 using Clubby.GeneralUtils;
+using System.Linq;
 using System.Reflection;
 
 namespace Clubby
@@ -37,7 +38,7 @@ namespace Clubby
             Console.CancelKeyPress += Console_CancelKeyPress;
 
             // If there wasn't a config file generate a new one.
-            if(config == null)
+            if (config == null)
             {
                 config = ConfigFile.MakeDefault("./config.json");
                 config.Save();
@@ -55,12 +56,13 @@ namespace Clubby
                 config.StartTime = DateTime.Now;
 
                 // Show swag banner if it exists
-                if(File.Exists("./banner.ans"))
+                if (File.Exists("./banner.ans"))
                 {
                     Console.WriteLine(File.ReadAllText("./banner.ans"));
                 }
 
-                Console.ReadKey(true);
+                if (args.Contains("--pause"))
+                    Console.ReadKey(true);
 
                 // Initialize the bot
                 config.DiscordBot = new DiscordBot();
@@ -113,7 +115,7 @@ namespace Clubby
                 config.DiscordBot.UpdateDashboard().Wait();
                 config.DiscordBot.LogOut().Wait();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Log<Program>(e.Message);
             }

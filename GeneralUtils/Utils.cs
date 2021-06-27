@@ -76,7 +76,7 @@ namespace Clubby.GeneralUtils
         // If someone is cringing at this, I'm truly sorry about this.
         public static string ToPrettyString(this TimeSpan span)
         {
-            return $"{(span.Hours == 0 ? "" : $"{span.Hours} hr{(span.Hours > 1 ? "s" : "")}")} {(span.Minutes == 0 ? "" : $"{span.Minutes} min{(span.Minutes > 1 ? "s" : "")}")} {(span.Seconds == 0 ? "" : $"{span.Seconds} sec{(span.Seconds > 1 ? "s" : "")}")}";
+            return $"{(span.Days == 0 ? "" : $"{span.Days} day{(span.Days > 1 ? "s" : "")} ")}{(span.Hours == 0 ? "" : $"{span.Hours} hr{(span.Hours > 1 ? "s" : "")}")} {(span.Minutes == 0 ? "" : $"{span.Minutes} min{(span.Minutes > 1 ? "s" : "")}")} {(span.Seconds == 0 ? "" : $"{span.Seconds} sec{(span.Seconds > 1 ? "s" : "")}")}";
         }
 
         public static string MakeString<T>(this IEnumerable<T> a)
