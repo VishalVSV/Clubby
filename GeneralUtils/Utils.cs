@@ -58,6 +58,18 @@ namespace Clubby.GeneralUtils
             }
         }
 
+        public static void AddOrUpdate<T,U>(this Dictionary<T,U> dict, T key, U value)
+        {
+            if (dict.ContainsKey(key))
+            {
+                dict[key] = value;
+            }
+            else
+            {
+                dict.Add(key, value);
+            }
+        }
+
         // The same as above but checks for duplicates
         public static void AddOrAppendUnique<T, U>(this Dictionary<T, List<U>> dict, T key, U val)
         {
@@ -93,6 +105,104 @@ namespace Clubby.GeneralUtils
             res.Append("]");
 
             return res.ToString();
+        }
+
+        static string keyboard = "`~1!2@3#4$5%6^7&8*9(0)-_=+\nQqWwEeRrTtYyUuIiOoPp{[}]|\\\nAaSsDdFfGgHhJjKkLl:;\"'\nZzXxCcVvBbNnMm<,>.?/";
+
+        static int GetKeyDist(char a, char b)
+        {
+            var (ax, ay) = GetKeyPos(a);
+            var (bx, by) = GetKeyPos(b);
+            return Math.Max(Math.Abs(ax - bx), Math.Abs(ay - by));
+        }
+
+        static (int, int) GetKeyPos(char a)
+        {
+            int x = 0, y = 0;
+
+            for (int i = 0; i < keyboard.Length; i++)
+            {
+                if (keyboard[i] == a)
+                {
+                    break;
+                }
+                else
+                {
+                    if (keyboard[i] == '\n')
+                    {
+                        y += 1;
+                        x = 0;
+                    }
+                    else
+                    {
+                        x += 1;
+                    }
+                }
+            }
+
+            return (x / 2, y);
+        }
+
+        public static int LevenshteinDistanceModified(string s, string t)
+        {
+            const int insertion_cost = 2, deletion_cost = 2;
+
+            int n = s.Length;
+            int m = t.Length;
+            int[,] d = new int[n + 1, m + 1];
+
+            // Step 1
+            if (n == 0)
+            {
+                return m * insertion_cost;
+            }
+
+            if (m == 0)
+            {
+                return n * insertion_cost;
+            }
+
+            // Step 2
+            for (int i = 0; i <= n; d[i, 0] = i++)
+            {
+            }
+
+            for (int j = 0; j <= m; d[0, j] = j++)
+            {
+            }
+
+            // Step 3
+            for (int i = 1; i <= n; i++)
+            {
+                //Step 4
+                for (int j = 1; j <= m; j++)
+                {
+                    // Step 5
+                    int cost = (t[j - 1] == s[i - 1]) ? 0 : GetKeyDist(t[j - 1], s[i - 1]);
+
+                    // Step 6
+                    d[i, j] = Math.Min(
+                        Math.Min(d[i - 1, j] + deletion_cost,
+                        d[i, j - 1] + insertion_cost),
+                        d[i - 1, j - 1] + cost);
+                }
+            }
+            // Step 7
+            return d[n, m];
+        }
+
+        public static string GetBestMatch(this List<string> ls, string match, int threshold = 2)
+        {
+            for (int i = 0; i < ls.Count; i++)
+            {
+                int d = LevenshteinDistanceModified(ls[i], match);
+                if (d <= threshold)
+                {
+                    return ls[i];
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -25,6 +25,8 @@ namespace Clubby.Discord.CommandHandling
         /// </summary>
         public PluginManager<IDiscordCommand,DiscordBot> commands = new PluginManager<IDiscordCommand,DiscordBot>();
 
+        private List<string> command_names = new List<string>();
+
         /// <summary>
         /// Redundant closure to get channel for convenience.
         /// </summary>
@@ -51,6 +53,14 @@ namespace Clubby.Discord.CommandHandling
                 if (Directory.Exists("./Commands"))
                 {
                     commands.Load("./Commands", bot);
+
+                    command_names.Clear();
+
+                    var cmds = GetAllCommands((int)DiscordCommandPermission.Owner);
+                    for (int i = 0; i < cmds.Length; i++)
+                    {
+                        command_names.Add(cmds[i].Name);
+                    }
                 }
             }
             catch(Exception e)
@@ -65,6 +75,14 @@ namespace Clubby.Discord.CommandHandling
         public void Reload()
         {
             commands.Load("./Commands",bot);
+
+            command_names.Clear();
+
+            var cmds = GetAllCommands((int)DiscordCommandPermission.Owner);
+            for (int i = 0; i < cmds.Length; i++)
+            {
+                command_names.Add(cmds[i].Name);
+            }
         }
 
         /// <summary>
@@ -76,7 +94,6 @@ namespace Clubby.Discord.CommandHandling
         {
             return commands.GetPlugins((f) =>
             {
-                
                 var cmd = (IDiscordCommand)Activator.CreateInstance(f);
                 return (int)(cmd).GetMinimumPerms() <= max_perms;
             }).ToArray();
@@ -169,6 +186,16 @@ namespace Clubby.Discord.CommandHandling
             {
                 // Get the command name from the message
                 string command = ExtractCommand(msg.Content);
+
+                if(command == null)
+                {
+                    var guess = command_names.GetBestMatch(msg.Content.Split(' ')[0].Substring(Program.config.DiscordBotPrefix.Length), 4);
+                    if (guess == null)
+                        await msg.Channel.SendError($"Couldn't find command: `{Program.config.DiscordBotPrefix}{msg.Content.Split(' ')[0].Substring(Program.config.DiscordBotPrefix.Length)}`");
+                    else
+                        await msg.Channel.SendError($"Couldn't find command: `{Program.config.DiscordBotPrefix}{msg.Content.Split(' ')[0].Substring(Program.config.DiscordBotPrefix.Length)}`\n\nDid you mean `{Program.config.DiscordBotPrefix}{guess.ToLower()}`");
+                    return;
+                }
                 // Get the type of the command and construct an instance to handle the command.
                 IDiscordCommand cmd = commands.GetInstance(Construct_Identifier(command, (msg.Author as SocketGuildUser).ThenOrElse(
                     user => user.Guild.Id,
@@ -252,8 +279,11 @@ namespace Clubby.Discord.CommandHandling
         {
             if (msg.StartsWith(Program.config.DiscordBotPrefix))
             {
-                string first_chunk = msg.Split(' ')[0];
-                return first_chunk.Substring(Program.config.DiscordBotPrefix.Length);
+                string first_chunk = msg.Split(' ')[0].Substring(Program.config.DiscordBotPrefix.Length);
+
+                first_chunk = command_names.GetBestMatch(first_chunk, 2);
+
+                return first_chunk;
             }
             else
             {

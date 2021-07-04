@@ -1,4 +1,6 @@
-﻿namespace Clubby.Discord.CommandHandling
+﻿using Discord;
+
+namespace Clubby.Discord.CommandHandling
 {
     /// <summary>
     /// The struct that contains discord command metadata.
@@ -13,6 +15,8 @@
         /// A short description of the command to display on help.
         /// </summary>
         public string ShortDescription;
+
+        public Embed Usage;
         
         /* Example HelpDetails
             public static HelpDetails Example = Utils.Init((ref HelpDetails h) =>
